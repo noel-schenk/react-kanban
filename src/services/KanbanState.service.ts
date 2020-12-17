@@ -25,6 +25,13 @@ class KanbanState {
         }
     }
 
+    setCardDisplayStateByCard(card: Card, displayState: DisplayStates) {
+        card.states['display'] = displayState;
+        const cards = this.cards.getValue();
+        cards[cards.indexOf(card)] = card;
+        this.cards.next(cards);
+    }
+
     getCardsByColumn(column: Column) {
         return this.cards.getValue().filter(card => card.column.position === column.position);
     }
@@ -34,10 +41,15 @@ class KanbanState {
         return card.fields.filter(field => field.field.type === fieldType);
     }
 
-    replaceFieldByType(card: Card, fieldType: FieldTypes, newValue: any) {
+    replaceFieldByType(card: Card, fieldType: FieldTypes, newValue: any, index?: number) {
+        let indexCount = 0;
         card.fields = card.fields.map(field => {
             if (field.field.type === fieldType) {
-                field.value = newValue;
+                if (index && indexCount !== index) {
+                    indexCount++;
+                } else {
+                    field.value = newValue;
+                }
             }
             return field;
         });

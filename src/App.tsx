@@ -73,7 +73,7 @@ const ks = KSS.default._();
       {position: 1, title: 'In Progress'},
       {position: 2, title: 'Published'}
     ]);
-  }, 5000);
+  }, 1000);
 
 // END DEMO DATA
 

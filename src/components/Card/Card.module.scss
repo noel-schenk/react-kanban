@@ -4,12 +4,9 @@
 .CardHeader {
     background: rgba(63, 81, 181, 0.5);
 }
-.FormInput {
-    margin: 16px 20px 8px 20px;
-    width: calc( 100% - 40px );
-}
 .FormImage {
     position: relative;
+    margin: 16px 0 8px 0;
     &::before {
         content: '';
         display: block;
@@ -46,4 +43,7 @@
         width: 100%;
         height: auto;
     }
+}
+.CardHeaderImage {
+    padding-top: 56.25%;
 }

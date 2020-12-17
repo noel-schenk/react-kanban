@@ -4,7 +4,7 @@ import MoreVert from '@material-ui/icons/MoreVert';
 import MUICard from '@material-ui/core/Card';
 import * as KSS from '../../services/KanbanState.service';
 import { OnBehaviorSubjectHook } from '../../Helper';
-import { TextField, CardHeader, CardMedia, CardContent, IconButton, Typography } from '@material-ui/core';
+import { TextField, CardHeader, CardMedia, CardContent, IconButton, Typography, Button } from '@material-ui/core';
 import { DropzoneDialog, DropzoneDialogBase } from 'material-ui-dropzone';
 
 const ks = KSS.default._();
@@ -14,7 +14,7 @@ const Card: React.FC<{ card: KSS.Card }> = ({card}) => {
   const [title, setTitle] = OnBehaviorSubjectHook<string>(ks.cards, () => ks.getFieldByType(card, KSS.FieldTypes.title)[0].value);
   const [subheader, setSubheader] = OnBehaviorSubjectHook<string>(ks.cards, () => ks.getFieldByType(card, KSS.FieldTypes.subheader)[0].value);
   const [image, setImage] = OnBehaviorSubjectHook<string>(ks.cards, () => ks.getFieldByType(card, KSS.FieldTypes.image)[0].value)
-  const [paragraphs, setParagraphs] = OnBehaviorSubjectHook<Array<string>>(ks.cards, () => ks.getFieldByType(card, KSS.FieldTypes.paragraph));
+  const [paragraphs, setParagraphs] = OnBehaviorSubjectHook<Array<any>>(ks.cards, () => ks.getFieldByType(card, KSS.FieldTypes.paragraph));
 
   return (
     <div className={styles.Card}>
@@ -26,14 +26,15 @@ const Card: React.FC<{ card: KSS.Card }> = ({card}) => {
               <MoreVert />
             </IconButton>
           }
+          title='Edit'
         />
-        <div className={styles.FormInput}>
-          <TextField
+        <CardContent>
+        <TextField
             label='Title'
-            variant='filled'
             defaultValue={title}
             fullWidth={true}
             margin={'normal'}
+            onChange={(ev) => ks.replaceFieldByType(card, KSS.FieldTypes.title, ev.target.value)}
           />
           <TextField
             label='Publish date'
@@ -41,6 +42,7 @@ const Card: React.FC<{ card: KSS.Card }> = ({card}) => {
             type='datetime-local'
             fullWidth={true}
             margin='normal'
+            onChange={(ev) => ks.replaceFieldByType(card, KSS.FieldTypes.subheader, ev.target.value)}
           />
           <div className={styles.FormImage}>
             <img src={image} onClick={() => setDropzoneDialogVisibility(true)} />
@@ -54,12 +56,19 @@ const Card: React.FC<{ card: KSS.Card }> = ({card}) => {
             open={dropzoneDialogVisibility}
             onClose={() => setDropzoneDialogVisibility(false)}
           />
-          <CardContent>
-            {paragraphs.map((paragraphField: any) => {
-              return <Typography variant='body2' color='textSecondary' component='p'>{paragraphField.value}</Typography>;
-            })}
-          </CardContent>
-        </div>
+          {paragraphs.map((paragraphField, index) => {
+            return <TextField
+              label='Description'
+              multiline
+              rows={4}
+              defaultValue={paragraphField.value}
+              fullWidth={true}
+              margin='normal'
+              onChange={(ev) => ks.replaceFieldByType(card, KSS.FieldTypes.paragraph, ev.target.value, index)}
+            />
+          })}
+          <Button onClick={() => {ks.setCardDisplayStateByCard(card, KSS.DisplayStates.data)}} variant="contained" color="primary" fullWidth={true}>Save</Button>
+        </CardContent>
       </MUICard>}
       {card.states['display'] === KSS.DisplayStates.data && <MUICard>
         <CardHeader
@@ -75,13 +84,13 @@ const Card: React.FC<{ card: KSS.Card }> = ({card}) => {
           subheaderTypographyProps={{variant:'body2' }}
         />
         <CardMedia
-          image='/static/images/cards/paella.jpg'
-          title='Paella dish'
+          className={styles.CardHeaderImage}
+          image={image}
         />
         <CardContent>
-          {OnBehaviorSubjectHook(ks.cards, () => ks.getFieldByType(card, KSS.FieldTypes.paragraph).map(paragraphField => {
+          {paragraphs.map(paragraphField => {
             return <Typography variant='body2' color='textSecondary' component='p'>{paragraphField.value}</Typography>;
-          }))}
+          })}
           
         </CardContent>
       </MUICard>}
