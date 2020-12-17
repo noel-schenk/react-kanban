@@ -1,4 +1,16 @@
-Overview {
-    display: flex;
-    justify-content: space-around;
+.Column {
+    width: 280px;
+    padding: 20px;
+    > div {
+        min-height: 300px;
+        padding: 20px;
+    }
+    > h2 {
+        font-family: 'Roboto';
+        font-weight: 100;
+        background: rgba(63, 81, 181, 0.75);
+        margin: 0;
+        padding: 20px;
+        color: white;
+    }
 }

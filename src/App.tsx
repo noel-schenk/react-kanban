@@ -4,10 +4,12 @@ import Overview from './components/Overview/Overview';
 import Header from './components/Header/Header';
 import KanbanState, { FieldTypes } from './services/KanbanState.service';
 import clone from 'clone';
+import 'fontsource-roboto';
+import * as KSS from './services/KanbanState.service';
+const ks = KSS.default._();
 
 // DEMO DATA REMOVE FOR PRODUCTION
 
-  const ks = KanbanState._();
   ks.columns.next([
     {position: 0, title: 'Open'},
     {position: 1, title: 'In Progress'},
@@ -22,8 +24,8 @@ import clone from 'clone';
 
   const defaultFieldsInit = [
     {field: ks.fields.getValue()[0], value: 'Example Title'},
-    {field: ks.fields.getValue()[1], value: '12.12.2020'},
-    {field: ks.fields.getValue()[2], value: 'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.'},
+    {field: ks.fields.getValue()[1], value: '2020-12-12T20:30'},
+    {field: ks.fields.getValue()[2], value: 'https://placekitten.com/300/200'},
     {field: ks.fields.getValue()[3], value: 'paragraph'}
   ];
 
@@ -32,21 +34,21 @@ import clone from 'clone';
       column: ks.columns.getValue()[0],
       fields: defaultFieldsInit.slice(),
       states: {
-        'hidden': false
+        'display': KSS.DisplayStates.data
       }
     },
     {
       column: ks.columns.getValue()[0],
       fields: defaultFieldsInit.slice(),
       states: {
-        'hidden': false
+        'display': KSS.DisplayStates.data
       }
     },
     {
       column: ks.columns.getValue()[1],
       fields: defaultFieldsInit.slice(),
       states: {
-        'hidden': false
+        'display': KSS.DisplayStates.data
       }
     }
   ];
@@ -62,7 +64,7 @@ import clone from 'clone';
       column: ks.columns.getValue()[2],
       fields: defaultFieldsInit.slice(),
       states: {
-        'hidden': false
+        'display': KSS.DisplayStates.edit
       }
     });
     ks.cards.next(cardsInit);

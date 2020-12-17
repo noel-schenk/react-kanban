@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { BehaviorSubject } from "rxjs";
 
-const BehaviorSubjectToHook: <T>(behaviorSubject: BehaviorSubject<any>) => T = (behaviorSubject: BehaviorSubject<any>) => {
+const BehaviorSubjectToHook: <T>(behaviorSubject: BehaviorSubject<any>) => [T, React.Dispatch<React.SetStateAction<T>>] = (behaviorSubject: BehaviorSubject<any>) => {
     const [subject, setSubject] = useState(behaviorSubject.getValue());
     
     useEffect(() => {
@@ -9,19 +9,19 @@ const BehaviorSubjectToHook: <T>(behaviorSubject: BehaviorSubject<any>) => T = (
             setSubject(val);
         });
     }, []);
-    return subject;
+    return [subject, setSubject];
 };
 
-const OnBehaviorSubjectHook: <T>(behaviorSubject: BehaviorSubject<any>, valReq: () => any) => T =  (behaviorSubject: BehaviorSubject<any>, valReq: () => any) => {
+const OnBehaviorSubjectHook: <T>(behaviorSubject: BehaviorSubject<any>, valReq: () => any) => [T,  React.Dispatch<React.SetStateAction<T>>] =  (behaviorSubject: BehaviorSubject<any>, valReq: () => any) => {
     const [subject, setSubject] = useState(valReq());
 
     useEffect(() => {
         behaviorSubject.subscribe(() => {
-            console.log('subscribe trigger');
+            console.log('subscribe trigger', behaviorSubject, valReq());
             setSubject(valReq());
         });
     }, []);
-    return subject;
+    return [subject, setSubject];
 };
 
 export {BehaviorSubjectToHook, OnBehaviorSubjectHook};

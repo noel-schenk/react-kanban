@@ -1,6 +1,7 @@
 import { BehaviorSubject } from "rxjs";
 
 enum FieldTypes {title, subheader, image, paragraph};
+enum DisplayStates {data, edit}
 
 export type Column = {title: string; position: number};
 export type Card = {column: Column, fields: Array<{field: Field, value: any}>, states: Record<string, any>};
@@ -25,13 +26,24 @@ class KanbanState {
     }
 
     getCardsByColumn(column: Column) {
-        return this.cards.getValue().filter(card => card.column === column);
+        return this.cards.getValue().filter(card => card.column.position === column.position);
     }
 
     getFieldByType(card: Card, fieldType: FieldTypes) {
+        card.fields.filter(field => {if (!field) debugger;});
         return card.fields.filter(field => field.field.type === fieldType);
+    }
+
+    replaceFieldByType(card: Card, fieldType: FieldTypes, newValue: any) {
+        card.fields = card.fields.map(field => {
+            if (field.field.type === fieldType) {
+                field.value = newValue;
+            }
+            return field;
+        });
+        this.cards.next(this.cards.getValue());
     }
 }
 
 export default KanbanState;
-export {FieldTypes};
+export {FieldTypes, DisplayStates};
