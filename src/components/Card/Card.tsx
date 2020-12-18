@@ -14,6 +14,7 @@ const Card: React.FC<{ card: KSS.Card }> = ({card}) => {
   const [dropzoneDialogVisibility, setDropzoneDialogVisibility] = React.useState(false);
   const [menu, setMenu] = React.useState(false);
   const [menuAnchorEl, setMenuAnchorEl] = React.useState();
+
   const [title, setTitle] = OnBehaviorSubjectHook<{field: KSS.Field; value: any;}[]>(ks.cards, () => ks.getFieldByType(card, KSS.FieldTypes.title));
   const [subheader, setSubheader] = OnBehaviorSubjectHook<{field: KSS.Field; value: any;}[]>(ks.cards, () => ks.getFieldByType(card, KSS.FieldTypes.subheader));
   const [image, setImage] = OnBehaviorSubjectHook<{field: KSS.Field; value: any;}[]>(ks.cards, () => ks.getFieldByType(card, KSS.FieldTypes.image))
@@ -29,11 +30,11 @@ const Card: React.FC<{ card: KSS.Card }> = ({card}) => {
         onClose={() => setMenu(false)}
         anchorEl={menuAnchorEl}
       >
-        <MenuItem onClick={() => {setMenu(false); ks.setCardDisplayStateByCard(card, KSS.DisplayStates.edit)}}>Edit</MenuItem>
+        <MenuItem onClick={() => {setMenu(false); ks.setCardDisplayStateByCard(card, KSS.CardStates.edit)}}>Edit</MenuItem>
         <MenuItem onClick={() => {setMenu(false); ks.removeCardByCard(card)}}>Remove</MenuItem>
-        <MenuItem onClick={() => {setMenu(false); ks.setCardDisplayStateByCard(card, KSS.DisplayStates.hide)}}>Hide fields</MenuItem>
+        <MenuItem onClick={() => {setMenu(false); ks.setCardDisplayStateByCard(card, KSS.CardStates.hide)}}>Hide fields</MenuItem>
       </Menu>
-      {card.states['display'] === KSS.DisplayStates.hide && <MUICard>
+      {card.state === KSS.CardStates.hide && <MUICard>
        <CardHeader
           className={styles.CardHeader}
           title='Hide fields'
@@ -44,10 +45,10 @@ const Card: React.FC<{ card: KSS.Card }> = ({card}) => {
               control={<Checkbox checked={field.field.state === KSS.FieldStates.hidden}
               onChange={() => {ks.setFieldStateByField(field.field, field.field.state === KSS.FieldStates.hidden ? KSS.FieldStates.visible : KSS.FieldStates.hidden)}} />} label={field.field.name} /><br/></>;
           })}
-          <Button onClick={() => {ks.setCardDisplayStateByCard(card, KSS.DisplayStates.data)}} variant='contained' color='primary' fullWidth={true}>Save</Button>
+          <Button onClick={() => {ks.setCardDisplayStateByCard(card, KSS.CardStates.data)}} variant='contained' color='primary' fullWidth={true}>Save</Button>
         </CardContent>
       </MUICard>}
-      {card.states['display'] === KSS.DisplayStates.edit && <MUICard>
+      {card.state === KSS.CardStates.edit && <MUICard>
         <CardHeader
           className={styles.CardHeader}
           action={
@@ -97,10 +98,10 @@ const Card: React.FC<{ card: KSS.Card }> = ({card}) => {
               onChange={(ev) => ks.replaceFieldByType(card, KSS.FieldTypes.paragraph, ev.target.value, index)}
             />}</>
           })}
-          <Button onClick={() => {ks.setCardDisplayStateByCard(card, KSS.DisplayStates.data)}} variant='contained' color='primary' fullWidth={true}>Save</Button>
+          <Button onClick={() => {ks.setCardDisplayStateByCard(card, KSS.CardStates.data)}} variant='contained' color='primary' fullWidth={true}>Save</Button>
         </CardContent>
       </MUICard>}
-      {card.states['display'] === KSS.DisplayStates.data && <MUICard>
+      {card.state === KSS.CardStates.data && <MUICard>
         <CardHeader
           className={styles.CardHeader}
           action={

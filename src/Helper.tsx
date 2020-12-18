@@ -24,4 +24,16 @@ const OnBehaviorSubjectHook: <T>(behaviorSubject: BehaviorSubject<any>, valReq: 
     return [subject, setSubject];
 };
 
-export {BehaviorSubjectToHook, OnBehaviorSubjectHook};
+class BetterBehaviorSubject<T> extends BehaviorSubject<T> {
+    trigger() {
+        const value = this.getValue();
+        if (Array.isArray(value)) {
+            this.next([...value] as any);
+        } else {
+            this.next(Object.assign({}, value));
+        }
+        
+    }
+}
+
+export {BehaviorSubjectToHook, OnBehaviorSubjectHook, BetterBehaviorSubject};

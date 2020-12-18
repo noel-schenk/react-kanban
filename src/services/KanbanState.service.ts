@@ -1,20 +1,21 @@
-import { BehaviorSubject } from "rxjs";
+import clone from "clone";
+import { BetterBehaviorSubject } from "../Helper";
 
 enum FieldTypes {title, subheader, image, paragraph}
-enum DisplayStates {data, edit, hide}
+enum CardStates {data, edit, hide}
 enum FieldStates {visible, hidden}
 enum ColumnStates {data, edit}
 
 export type Column = {title: string; position: number; color: string, state: ColumnStates};
-export type Card = {column: Column, fields: Array<{field: Field, value: any}>, states: Record<string, any>};
+export type Card = {column: Column, fields: Array<{field: Field, value: string}>, state: CardStates};
 export type Field = {name: string, type: FieldTypes, state: FieldStates};
 
 class KanbanState {
     private static KanbanState:KanbanState;
 
-    public columns = new BehaviorSubject(new Array<Column>());
-    public cards = new BehaviorSubject(new Array<Card>());
-    public fields = new BehaviorSubject(new Array<Field>());
+    public columns = new BetterBehaviorSubject(new Array<Column>());
+    public cards = new BetterBehaviorSubject(new Array<Card>());
+    public fields = new BetterBehaviorSubject(new Array<Field>());
 
     private constructor() {}
 
@@ -27,31 +28,51 @@ class KanbanState {
         }
     }
 
+    createNewCard(column: Column) {
+        const cards = this.cards.getValue();
+        const fields = this.fields.getValue();
+        const newFields = fields.map(field => {
+            const newField = {field: field, value: ''};
+            switch (field.name) {
+                case 'attachment' :
+                    newField.value = 'https://placekitten.com/408/287'; break;
+                case 'publish-date' :
+                    newField.value = new Date(Date.now()).toISOString().substr(0, 16); break;
+            }
+            return newField;
+        });
+        cards.push({column, fields: newFields, state: CardStates.edit})
+        this.cards.trigger();
+    }
+
+    setColumnStateByColumn(column: Column, columnState: ColumnStates) {
+        const columns = this.columns.getValue();
+        columns[columns.indexOf(column)].state = columnState;
+        this.columns.trigger();
+    }
+
     createNewColumn() {
         const columns = this.columns.getValue();
-        columns.push({title: '', position: columns.length, color: '#fff', state: ColumnStates.edit});
-        this.columns.next(columns);
+        columns.push({position: columns.length, title: '', color: '#fff', state: ColumnStates.edit});
+        this.columns.trigger();
     }
 
     setFieldStateByField(field: Field, fieldState: FieldStates) {
         const fields = this.fields.getValue();
         fields[fields.indexOf(field)].state = fieldState;
-        this.fields.next(fields);
-        this.cards.next(this.cards.getValue()); // I dont understand why in this case a full rerender of the cards is needed
+        this.fields.trigger();
+        this.cards.trigger(); // I dont understand why in this case a full rerender of the cards is needed
     }
 
     removeCardByCard(card: Card) {
         const cards = this.cards.getValue();
         cards.splice(cards.indexOf(card), 1);
-        this.cards.next(cards);
-        console.log(this.cards.getValue());
+        this.cards.trigger();
     }
 
-    setCardDisplayStateByCard(card: Card, displayState: DisplayStates) {
-        card.states['display'] = displayState;
-        const cards = this.cards.getValue();
-        cards[cards.indexOf(card)] = card;
-        this.cards.next(cards);
+    setCardDisplayStateByCard(card: Card, cardState: CardStates) {
+        card.state = cardState;
+        this.cards.trigger();
     }
 
     getCardsByColumn(column: Column) {
@@ -75,9 +96,9 @@ class KanbanState {
             }
             return field;
         });
-        this.cards.next(this.cards.getValue());
+        this.cards.trigger();
     }
 }
 
 export default KanbanState;
-export {FieldTypes, DisplayStates, FieldStates, ColumnStates};
+export {FieldTypes, CardStates, FieldStates, ColumnStates};

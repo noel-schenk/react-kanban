@@ -8,7 +8,13 @@ import * as KSS from './services/KanbanState.service';
 const ks = KSS.default._();
 
 // DEMO DATA REMOVE FOR PRODUCTION
-
+ks.fields.next([
+  {type: FieldTypes.title, name: 'title', state: FieldStates.visible},
+  {type: FieldTypes.subheader, name: 'publish-date', state: FieldStates.visible},
+  {type: FieldTypes.image, name: 'attachment', state: FieldStates.visible},
+  {type: FieldTypes.paragraph, name: 'description', state: FieldStates.visible}
+]);
+/*
   ks.columns.next([
     {position: 0, title: 'Open', color: '#ffc3df', state: ColumnStates.data},
     {position: 1, title: 'In Progress', color: '#c3d3ff', state: ColumnStates.data},
@@ -74,14 +80,16 @@ const ks = KSS.default._();
       {position: 1, title: 'In Progress', color: '#c3d3ff', state: ColumnStates.data},
       {position: 2, title: 'Published', color: '#ffe7c3', state: ColumnStates.data}
     ]);
-    ks.columns.next([
-      {position: 0, title: 'Start', color: '#ffc3df', state: ColumnStates.data},
-      {position: 1, title: 'In Progress', color: '#c3d3ff', state: ColumnStates.data},
-      {position: 2, title: 'Published', color: '#ffe7c3', state: ColumnStates.data},
-      {position: 3, title: 'Whaaat', color: '#ffe7c3', state: ColumnStates.data} // why is it adding here but not in the service itself?
-    ]);
+    setTimeout(() => {
+      ks.columns.next([
+        {position: 0, title: 'Start', color: '#ffc3df', state: ColumnStates.data},
+        {position: 1, title: 'In Progress', color: '#c3d3ff', state: ColumnStates.data},
+        {position: 2, title: 'Published', color: '#ffe7c3', state: ColumnStates.data},
+        {position: 3, title: 'Whaaat', color: '#ffe7c3', state: ColumnStates.data} // why is it adding here but not in the service itself?
+      ]);
+    }, 1000);
   }, 1000);
-
+*/
 // END DEMO DATA
 
 

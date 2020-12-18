@@ -1,6 +1,7 @@
 .Column {
     width: 280px;
     padding: 20px;
+    position: relative;
     > div {
         min-height: 300px;
         padding: 20px;
@@ -13,4 +14,14 @@
         padding: 20px;
         color: white;
     }
+}
+.Settings {  
+    position: absolute !important;
+    top: 28px !important;
+    right: 28px !important;
+}
+.ColorPicker {
+    width: 100% !important;
+    margin: 16px 0 8px 0 !important;
+    box-shadow: none !important;
 }
