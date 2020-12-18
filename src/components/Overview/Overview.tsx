@@ -8,9 +8,11 @@ const ks = KSS.default._();
 
 const Overview: React.FC = () => {
   const [columns, setColumns] = OnBehaviorSubjectHook<Array<KSS.Column>>(ks.columns, () => ks.columns.getValue());
+
   return (
   <div className={styles.Overview}>
-    {columns.sort((ca, cb) => ca.position - cb.position).map(column => {    
+    {columns.sort((ca, cb) => ca.position - cb.position).map(column => {
+      console.log(column, 'column'); 
       return <Column column={column}></Column>;
     })}
   </div>

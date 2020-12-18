@@ -1,11 +1,13 @@
 import { BehaviorSubject } from "rxjs";
 
-enum FieldTypes {title, subheader, image, paragraph};
-enum DisplayStates {data, edit}
+enum FieldTypes {title, subheader, image, paragraph}
+enum DisplayStates {data, edit, hide}
+enum FieldStates {visible, hidden}
+enum ColumnStates {data, edit}
 
-export type Column = {title: string; position: number};
+export type Column = {title: string; position: number; color: string, state: ColumnStates};
 export type Card = {column: Column, fields: Array<{field: Field, value: any}>, states: Record<string, any>};
-export type Field = {name: string, type: FieldTypes};
+export type Field = {name: string, type: FieldTypes, state: FieldStates};
 
 class KanbanState {
     private static KanbanState:KanbanState;
@@ -23,6 +25,26 @@ class KanbanState {
             KanbanState.KanbanState = new KanbanState();
             return KanbanState.KanbanState;
         }
+    }
+
+    createNewColumn() {
+        const columns = this.columns.getValue();
+        columns.push({title: '', position: columns.length, color: '#fff', state: ColumnStates.edit});
+        this.columns.next(columns);
+    }
+
+    setFieldStateByField(field: Field, fieldState: FieldStates) {
+        const fields = this.fields.getValue();
+        fields[fields.indexOf(field)].state = fieldState;
+        this.fields.next(fields);
+        this.cards.next(this.cards.getValue()); // I dont understand why in this case a full rerender of the cards is needed
+    }
+
+    removeCardByCard(card: Card) {
+        const cards = this.cards.getValue();
+        cards.splice(cards.indexOf(card), 1);
+        this.cards.next(cards);
+        console.log(this.cards.getValue());
     }
 
     setCardDisplayStateByCard(card: Card, displayState: DisplayStates) {
@@ -58,4 +80,4 @@ class KanbanState {
 }
 
 export default KanbanState;
-export {FieldTypes, DisplayStates};
+export {FieldTypes, DisplayStates, FieldStates, ColumnStates};

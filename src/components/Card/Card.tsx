@@ -1,23 +1,52 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import styles from './Card.module.scss';
 import MoreVert from '@material-ui/icons/MoreVert';
 import MUICard from '@material-ui/core/Card';
 import * as KSS from '../../services/KanbanState.service';
 import { OnBehaviorSubjectHook } from '../../Helper';
-import { TextField, CardHeader, CardMedia, CardContent, IconButton, Typography, Button } from '@material-ui/core';
-import { DropzoneDialog, DropzoneDialogBase } from 'material-ui-dropzone';
+import { TextField, CardHeader, CardMedia, CardContent, IconButton, Typography, Button, Menu, MenuItem, FormControlLabel, Checkbox } from '@material-ui/core';
+import { DropzoneDialogBase } from 'material-ui-dropzone';
+import { Field } from '../../services/KanbanState.service';
 
 const ks = KSS.default._();
 
 const Card: React.FC<{ card: KSS.Card }> = ({card}) => {
   const [dropzoneDialogVisibility, setDropzoneDialogVisibility] = React.useState(false);
-  const [title, setTitle] = OnBehaviorSubjectHook<string>(ks.cards, () => ks.getFieldByType(card, KSS.FieldTypes.title)[0].value);
-  const [subheader, setSubheader] = OnBehaviorSubjectHook<string>(ks.cards, () => ks.getFieldByType(card, KSS.FieldTypes.subheader)[0].value);
-  const [image, setImage] = OnBehaviorSubjectHook<string>(ks.cards, () => ks.getFieldByType(card, KSS.FieldTypes.image)[0].value)
+  const [menu, setMenu] = React.useState(false);
+  const [menuAnchorEl, setMenuAnchorEl] = React.useState();
+  const [title, setTitle] = OnBehaviorSubjectHook<{field: KSS.Field; value: any;}[]>(ks.cards, () => ks.getFieldByType(card, KSS.FieldTypes.title));
+  const [subheader, setSubheader] = OnBehaviorSubjectHook<{field: KSS.Field; value: any;}[]>(ks.cards, () => ks.getFieldByType(card, KSS.FieldTypes.subheader));
+  const [image, setImage] = OnBehaviorSubjectHook<{field: KSS.Field; value: any;}[]>(ks.cards, () => ks.getFieldByType(card, KSS.FieldTypes.image))
   const [paragraphs, setParagraphs] = OnBehaviorSubjectHook<Array<any>>(ks.cards, () => ks.getFieldByType(card, KSS.FieldTypes.paragraph));
+  const [fields, setFields] = OnBehaviorSubjectHook<{ field: KSS.Field; value: any; }[]>(ks.fields, () => card.fields);
+
+  const checkVisibility = (field: { field: Field; value: any; }) => field.field.state === KSS.FieldStates.visible;
 
   return (
     <div className={styles.Card}>
+      <Menu
+        open={menu}
+        onClose={() => setMenu(false)}
+        anchorEl={menuAnchorEl}
+      >
+        <MenuItem onClick={() => {setMenu(false); ks.setCardDisplayStateByCard(card, KSS.DisplayStates.edit)}}>Edit</MenuItem>
+        <MenuItem onClick={() => {setMenu(false); ks.removeCardByCard(card)}}>Remove</MenuItem>
+        <MenuItem onClick={() => {setMenu(false); ks.setCardDisplayStateByCard(card, KSS.DisplayStates.hide)}}>Hide fields</MenuItem>
+      </Menu>
+      {card.states['display'] === KSS.DisplayStates.hide && <MUICard>
+       <CardHeader
+          className={styles.CardHeader}
+          title='Hide fields'
+        />
+        <CardContent>
+          {fields.map(field => {
+            return <><FormControlLabel
+              control={<Checkbox checked={field.field.state === KSS.FieldStates.hidden}
+              onChange={() => {ks.setFieldStateByField(field.field, field.field.state === KSS.FieldStates.hidden ? KSS.FieldStates.visible : KSS.FieldStates.hidden)}} />} label={field.field.name} /><br/></>;
+          })}
+          <Button onClick={() => {ks.setCardDisplayStateByCard(card, KSS.DisplayStates.data)}} variant='contained' color='primary' fullWidth={true}>Save</Button>
+        </CardContent>
+      </MUICard>}
       {card.states['display'] === KSS.DisplayStates.edit && <MUICard>
         <CardHeader
           className={styles.CardHeader}
@@ -26,27 +55,28 @@ const Card: React.FC<{ card: KSS.Card }> = ({card}) => {
               <MoreVert />
             </IconButton>
           }
+          onClick={(ev: any) => {setMenu(true); console.log(ev); setMenuAnchorEl(ev.target)}}
           title='Edit'
         />
         <CardContent>
-        <TextField
+          {checkVisibility(title[0]) && <TextField
             label='Title'
-            defaultValue={title}
+            defaultValue={title[0].value}
             fullWidth={true}
             margin={'normal'}
             onChange={(ev) => ks.replaceFieldByType(card, KSS.FieldTypes.title, ev.target.value)}
-          />
-          <TextField
+          />}
+          {checkVisibility(subheader[0]) && <TextField
             label='Publish date'
-            defaultValue={subheader}
+            defaultValue={subheader[0].value}
             type='datetime-local'
             fullWidth={true}
             margin='normal'
             onChange={(ev) => ks.replaceFieldByType(card, KSS.FieldTypes.subheader, ev.target.value)}
-          />
-          <div className={styles.FormImage}>
-            <img src={image} onClick={() => setDropzoneDialogVisibility(true)} />
-          </div>
+          />}
+          {checkVisibility(image[0]) && <div className={styles.FormImage}>
+            <img src={image[0].value} onClick={() => setDropzoneDialogVisibility(true)} />
+          </div>}
           <DropzoneDialogBase
             dialogProps={{} as any}
             fileObjects={{} as any}
@@ -57,7 +87,7 @@ const Card: React.FC<{ card: KSS.Card }> = ({card}) => {
             onClose={() => setDropzoneDialogVisibility(false)}
           />
           {paragraphs.map((paragraphField, index) => {
-            return <TextField
+            return <>{checkVisibility(paragraphField) && <TextField
               label='Description'
               multiline
               rows={4}
@@ -65,9 +95,9 @@ const Card: React.FC<{ card: KSS.Card }> = ({card}) => {
               fullWidth={true}
               margin='normal'
               onChange={(ev) => ks.replaceFieldByType(card, KSS.FieldTypes.paragraph, ev.target.value, index)}
-            />
+            />}</>
           })}
-          <Button onClick={() => {ks.setCardDisplayStateByCard(card, KSS.DisplayStates.data)}} variant="contained" color="primary" fullWidth={true}>Save</Button>
+          <Button onClick={() => {ks.setCardDisplayStateByCard(card, KSS.DisplayStates.data)}} variant='contained' color='primary' fullWidth={true}>Save</Button>
         </CardContent>
       </MUICard>}
       {card.states['display'] === KSS.DisplayStates.data && <MUICard>
@@ -78,18 +108,19 @@ const Card: React.FC<{ card: KSS.Card }> = ({card}) => {
               <MoreVert />
             </IconButton>
           }
-          title={title}
-          subheader={subheader}
+          onClick={(ev: any) => {setMenu(true); setMenuAnchorEl(ev.target)}}
+          title={checkVisibility(title[0]) ? title[0].value : ''}
+          subheader={checkVisibility(subheader[0]) ? subheader[0].value : ''}
           titleTypographyProps={{variant:'body2' }}
           subheaderTypographyProps={{variant:'body2' }}
         />
-        <CardMedia
+        {checkVisibility(image[0]) && <CardMedia
           className={styles.CardHeaderImage}
-          image={image}
-        />
+          image={image[0].value}
+        />}
         <CardContent>
           {paragraphs.map(paragraphField => {
-            return <Typography variant='body2' color='textSecondary' component='p'>{paragraphField.value}</Typography>;
+            return <>{checkVisibility(paragraphField) && <Typography variant='body2' color='textSecondary' component='p'>{paragraphField.value}</Typography>}</>;
           })}
           
         </CardContent>
