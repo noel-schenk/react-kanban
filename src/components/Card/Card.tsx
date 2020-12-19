@@ -3,10 +3,11 @@ import styles from './Card.module.scss';
 import MoreVert from '@material-ui/icons/MoreVert';
 import MUICard from '@material-ui/core/Card';
 import * as KSS from '../../services/KanbanState.service';
-import { OnBehaviorSubjectHook } from '../../Helper';
+import { BetterBehaviorSubject, OnBehaviorSubjectHook } from '../../Helper';
 import { TextField, CardHeader, CardMedia, CardContent, IconButton, Typography, Button, Menu, MenuItem, FormControlLabel, Checkbox } from '@material-ui/core';
 import { DropzoneDialogBase } from 'material-ui-dropzone';
 import { Field } from '../../services/KanbanState.service';
+import { DragSource, useDrag } from 'react-dnd';
 
 const ks = KSS.default._();
 
@@ -15,16 +16,24 @@ const Card: React.FC<{ card: KSS.Card }> = ({card}) => {
   const [menu, setMenu] = React.useState(false);
   const [menuAnchorEl, setMenuAnchorEl] = React.useState();
 
-  const [title, setTitle] = OnBehaviorSubjectHook<{field: KSS.Field; value: any;}[]>(ks.cards, () => ks.getFieldByType(card, KSS.FieldTypes.title));
-  const [subheader, setSubheader] = OnBehaviorSubjectHook<{field: KSS.Field; value: any;}[]>(ks.cards, () => ks.getFieldByType(card, KSS.FieldTypes.subheader));
-  const [image, setImage] = OnBehaviorSubjectHook<{field: KSS.Field; value: any;}[]>(ks.cards, () => ks.getFieldByType(card, KSS.FieldTypes.image))
-  const [paragraphs, setParagraphs] = OnBehaviorSubjectHook<Array<any>>(ks.cards, () => ks.getFieldByType(card, KSS.FieldTypes.paragraph));
+  const [title, setTitle] = OnBehaviorSubjectHook<{field: KSS.Field; value: any;}[]>(ks.cards, () => ks.getFieldsByType(card, KSS.FieldTypes.title));
+  const [subheader, setSubheader] = OnBehaviorSubjectHook<{field: KSS.Field; value: any;}[]>(ks.cards, () => ks.getFieldsByType(card, KSS.FieldTypes.subheader));
+  const [image, setImage] = OnBehaviorSubjectHook<{field: KSS.Field; value: any;}[]>(ks.cards, () => ks.getFieldsByType(card, KSS.FieldTypes.image))
+  const [paragraphs, setParagraphs] = OnBehaviorSubjectHook<Array<any>>(ks.cards, () => ks.getFieldsByType(card, KSS.FieldTypes.paragraph));
   const [fields, setFields] = OnBehaviorSubjectHook<{ field: KSS.Field; value: any; }[]>(ks.fields, () => card.fields);
 
   const checkVisibility = (field: { field: Field; value: any; }) => field.field.state === KSS.FieldStates.visible;
 
+  const [{ isDragging }, drag] = useDrag({
+    item: { type: 'card', card: card },
+    collect: (monitor) => ({
+      isDragging: !!monitor.isDragging(),
+      card
+    })
+  });
+
   return (
-    <div className={styles.Card}>
+    <div className={styles.Card} ref={drag}>
       <Menu
         open={menu}
         onClose={() => setMenu(false)}
@@ -128,7 +137,7 @@ const Card: React.FC<{ card: KSS.Card }> = ({card}) => {
       </MUICard>}
     </div>
   );
-}
 
+}
 
 export default Card;

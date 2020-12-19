@@ -13,7 +13,7 @@ const Overview: React.FC = () => {
   <div className={styles.Overview}>
     {columns.sort((ca, cb) => ca.position - cb.position).map(column => {
       console.log(column, 'column'); 
-      return <Column column={column}></Column>;
+      return <Column key={column.key} column={column}></Column>;
     })}
   </div>
 )};

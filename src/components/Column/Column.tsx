@@ -4,29 +4,67 @@ import Paper from '@material-ui/core/Paper';
 import Card from '../Card/Card';
 import * as KSS from '../../services/KanbanState.service';
 import { OnBehaviorSubjectHook } from '../../Helper';
-import { Button, CardContent, IconButton, Menu, MenuItem, TextField } from '@material-ui/core';
+import { Button, CardContent, IconButton, Menu, MenuItem, Dialog, TextField, DialogContent, DialogContentText, DialogActions, DialogTitle } from '@material-ui/core';
 import { BlockPicker } from 'react-color';
 import { MoreVert } from '@material-ui/icons';
 import MUICard from '@material-ui/core/Card';
+import { useDrop } from 'react-dnd';
 
 const ks = KSS.default._();
 
 const Column: React.FC<{ column: KSS.Column }> = ({column}) => {
   const [menu, setMenu] = React.useState(false);
   const [menuAnchorEl, setMenuAnchorEl] = React.useState();
+  const [modal, setModal] = React.useState(false);
   
-  const [cards, setCards] = OnBehaviorSubjectHook<Array<any>>(ks.cards, () => ks.getCardsByColumn(column));
+  const [cards, setCards] = OnBehaviorSubjectHook<Array<KSS.Card>>(ks.cards, () => ks.getCardsByColumn(column));
   const [rColumn, setColumn] = OnBehaviorSubjectHook<KSS.Column>(ks.columns, () => column);
+
+  const [{ isOver }, drop] = useDrop({
+    accept: 'card',
+    drop: (dowt) => {
+      const card = ((dowt as any).card as KSS.Card);
+      ks.moveCardToColumn(card, column);
+    },
+    collect: (monitor) => ({
+      isOver: !!monitor.isOver()
+    })
+  });
+
   return (
-  <><Menu
-      open={menu}
-      onClose={() => setMenu(false)}
-      anchorEl={menuAnchorEl}
-    >
-      <MenuItem onClick={() => {setMenu(false); ks.setColumnStateByColumn(column, KSS.ColumnStates.edit)}}>Edit</MenuItem>
-      <MenuItem onClick={() => {setMenu(false); ks.createNewCard(column)}}>Add</MenuItem>
-    </Menu>
-  <div className={styles.Column}>
+  <>
+  <Dialog
+    open={modal}
+    onClose={() => setModal(false)}
+    aria-labelledby='simple-modal-title'
+    aria-describedby='simple-modal-description'
+  >
+    <DialogTitle>Removes cards?</DialogTitle>
+    <DialogContent>
+      <DialogContentText>Do you want to remove this Column and all Cards inside it?</DialogContentText>
+    </DialogContent>
+    <DialogActions>
+      <Button variant='contained' color='secondary' onClick={() => {setModal(false); ks.removeColumn(column);}}>Yes</Button>
+      <Button variant='contained' color='primary' onClick={() => {setModal(false);}}>No</Button>
+    </DialogActions>
+  </Dialog>
+  <Menu
+    open={menu}
+    onClose={() => setMenu(false)}
+    anchorEl={menuAnchorEl}
+  >
+    <MenuItem onClick={() => {setMenu(false); ks.setColumnStateByColumn(column, KSS.ColumnStates.edit)}}>Edit Column</MenuItem>
+    <MenuItem onClick={() => {
+      setMenu(false);
+      if (ks.getCardsByColumn(column).length >  0) {
+        setModal(true);
+      } else {
+        ks.removeColumn(column);
+      }
+    }}>Remove Column</MenuItem>
+    <MenuItem onClick={() => {setMenu(false); ks.createNewCard(column)}}>Add Card</MenuItem>
+  </Menu>
+  <div className={styles.Column} ref={drop}>
     <IconButton
       className={styles.Settings}
       aria-label='settings'
@@ -34,12 +72,10 @@ const Column: React.FC<{ column: KSS.Column }> = ({column}) => {
       >
       <MoreVert />
     </IconButton>
-    {console.log(column.state, 'column.state')}
-    {console.log(rColumn.state, 'rColumn.state')}
     {rColumn.state === KSS.ColumnStates.data && <><h2>{rColumn.title}</h2>
     <Paper style={{backgroundColor: rColumn.color}}>
-      {cards.map(card => {
-        return <Card card={card}></Card>;
+      {cards.map((card) => {
+        return <Card key={card.key} card={card}></Card>;
       })}
     </Paper></>}
     {rColumn.state === KSS.ColumnStates.edit && <><h2>Edit</h2>

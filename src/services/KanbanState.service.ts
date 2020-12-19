@@ -1,14 +1,14 @@
-import clone from "clone";
 import { BetterBehaviorSubject } from "../Helper";
+import { v4 as uuid } from 'uuid';
 
 enum FieldTypes {title, subheader, image, paragraph}
 enum CardStates {data, edit, hide}
 enum FieldStates {visible, hidden}
-enum ColumnStates {data, edit}
+enum ColumnStates {data, edit, dnd}
 
-export type Column = {title: string; position: number; color: string, state: ColumnStates};
-export type Card = {column: Column, fields: Array<{field: Field, value: string}>, state: CardStates};
-export type Field = {name: string, type: FieldTypes, state: FieldStates};
+export type Column = {key: string, title: string; position: number; color: string, state: ColumnStates};
+export type Card = {key: string, column: Column, fields: Array<{field: Field, value: string}>, state: CardStates};
+export type Field = {key: string, name: string, type: FieldTypes, state: FieldStates};
 
 class KanbanState {
     private static KanbanState:KanbanState;
@@ -28,6 +28,11 @@ class KanbanState {
         }
     }
 
+    moveCardToColumn(card: Card, column: Column) {
+        card.column = column;
+        this.cards.trigger();
+    }
+
     createNewCard(column: Column) {
         const cards = this.cards.getValue();
         const fields = this.fields.getValue();
@@ -41,7 +46,7 @@ class KanbanState {
             }
             return newField;
         });
-        cards.push({column, fields: newFields, state: CardStates.edit})
+        cards.push({key: uuid(), column, fields: newFields, state: CardStates.edit})
         this.cards.trigger();
     }
 
@@ -51,9 +56,17 @@ class KanbanState {
         this.columns.trigger();
     }
 
+    removeColumn(column: Column) {
+        const columns = this.columns.getValue();
+        const cards = this.getCardsByColumn(column);
+        cards.forEach(card => this.removeCardByCard(card));
+        columns.splice(columns.indexOf(column), 1);
+        this.columns.trigger();
+    }
+
     createNewColumn() {
         const columns = this.columns.getValue();
-        columns.push({position: columns.length, title: '', color: '#fff', state: ColumnStates.edit});
+        columns.push({key: uuid(), position: columns.length, title: '', color: '#fff', state: ColumnStates.edit});
         this.columns.trigger();
     }
 
@@ -76,12 +89,15 @@ class KanbanState {
     }
 
     getCardsByColumn(column: Column) {
-        return this.cards.getValue().filter(card => card.column.position === column.position);
+        const cards = this.cards.getValue().filter(card => card.column.position === column.position);
+        console.log(cards, 'cards - getCardsByColumn');
+        return [...cards];
     }
 
-    getFieldByType(card: Card, fieldType: FieldTypes) {
+    getFieldsByType(card: Card, fieldType: FieldTypes) {
         card.fields.filter(field => {if (!field) debugger;});
-        return card.fields.filter(field => field.field.type === fieldType);
+        const fields = card.fields.filter(field => field.field.type === fieldType);
+        return [...fields];
     }
 
     replaceFieldByType(card: Card, fieldType: FieldTypes, newValue: any, index?: number) {
