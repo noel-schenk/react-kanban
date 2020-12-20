@@ -4,7 +4,6 @@ import { OnBehaviorSubjectHook } from '../../Helper';
 import * as KSS from '../../services/KanbanState.service';
 import Column from '../Column/Column';
 import styles from './Overview.module.scss';
-import { Help as HelpIcon } from '@material-ui/icons';
 
 const ks = KSS.default._();
 
@@ -20,7 +19,7 @@ const Overview: React.FC = () => {
       <div className={styles.Init}>
         <div>
           <Button variant='contained' color='primary' onClick={() => ks.generateDemoContent()}>Generate demo content</Button>
-          <Button variant='contained' color='secondary' target='_blank' href='https://github.com/noelelias/dirico/'>Help <HelpIcon /></Button>
+          <Button variant='contained' color='secondary' target='_blank' href='https://github.com/noelelias/dirico/blob/master/README.md'>Help</Button>
         </div>
       </div>
       
