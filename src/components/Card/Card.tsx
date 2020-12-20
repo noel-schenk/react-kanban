@@ -7,11 +7,15 @@ import { BetterBehaviorSubject, OnBehaviorSubjectHook } from '../../Helper';
 import { TextField, CardHeader, CardMedia, CardContent, IconButton, Typography, Button, Menu, MenuItem, FormControlLabel, Checkbox } from '@material-ui/core';
 import { DropzoneDialogBase } from 'material-ui-dropzone';
 import { Field } from '../../services/KanbanState.service';
-import { DragSource, useDrag } from 'react-dnd';
+import { useDrag } from 'react-dnd';
 
 const ks = KSS.default._();
 
-const Card: React.FC<{ card: KSS.Card }> = ({card}) => {
+/**
+ * Displaying, editing KSS.Card data
+ * Hidding KSS.Fields data
+ */
+const Card: React.FC<{card: KSS.Card}> = ({card}) => {
   const [dropzoneDialogVisibility, setDropzoneDialogVisibility] = React.useState(false);
   const [menu, setMenu] = React.useState(false);
   const [menuAnchorEl, setMenuAnchorEl] = React.useState();
@@ -20,7 +24,7 @@ const Card: React.FC<{ card: KSS.Card }> = ({card}) => {
   const [subheader, setSubheader] = OnBehaviorSubjectHook<{field: KSS.Field; value: any;}[]>(ks.cards, () => ks.getFieldsByType(card, KSS.FieldTypes.subheader));
   const [image, setImage] = OnBehaviorSubjectHook<{field: KSS.Field; value: any;}[]>(ks.cards, () => ks.getFieldsByType(card, KSS.FieldTypes.image))
   const [paragraphs, setParagraphs] = OnBehaviorSubjectHook<Array<any>>(ks.cards, () => ks.getFieldsByType(card, KSS.FieldTypes.paragraph));
-  const [fields, setFields] = OnBehaviorSubjectHook<{ field: KSS.Field; value: any; }[]>(ks.fields, () => card.fields);
+  const [fields, setFields] = OnBehaviorSubjectHook<{ field: KSS.Field; value: any; }[]>(ks.fields, () => [...card.fields]);
 
   const checkVisibility = (field: { field: Field; value: any; }) => field.field.state === KSS.FieldStates.visible;
 
@@ -39,8 +43,8 @@ const Card: React.FC<{ card: KSS.Card }> = ({card}) => {
         onClose={() => setMenu(false)}
         anchorEl={menuAnchorEl}
       >
-        <MenuItem onClick={() => {setMenu(false); ks.setCardDisplayStateByCard(card, KSS.CardStates.edit)}}>Edit</MenuItem>
-        <MenuItem onClick={() => {setMenu(false); ks.removeCardByCard(card)}}>Remove</MenuItem>
+        <MenuItem onClick={() => {setMenu(false); ks.setCardDisplayStateByCard(card, KSS.CardStates.edit)}}>Edit card</MenuItem>
+        <MenuItem onClick={() => {setMenu(false); ks.removeCardByCard(card)}}>Remove card</MenuItem>
         <MenuItem onClick={() => {setMenu(false); ks.setCardDisplayStateByCard(card, KSS.CardStates.hide)}}>Hide fields</MenuItem>
       </Menu>
       {card.state === KSS.CardStates.hide && <MUICard>
@@ -65,7 +69,7 @@ const Card: React.FC<{ card: KSS.Card }> = ({card}) => {
               <MoreVert />
             </IconButton>
           }
-          onClick={(ev: any) => {setMenu(true); console.log(ev); setMenuAnchorEl(ev.target)}}
+          onClick={(ev: any) => {setMenu(true); setMenuAnchorEl(ev.target)}}
           title='Edit'
         />
         <CardContent>
@@ -137,7 +141,6 @@ const Card: React.FC<{ card: KSS.Card }> = ({card}) => {
       </MUICard>}
     </div>
   );
-
 }
 
 export default Card;

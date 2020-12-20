@@ -17,7 +17,6 @@ const OnBehaviorSubjectHook: <T>(behaviorSubject: BehaviorSubject<any>, valReq: 
 
     useEffect(() => {
         behaviorSubject.subscribe(() => {
-            console.log('subscribe trigger', behaviorSubject, valReq());
             setSubject(valReq());
         });
     }, []);

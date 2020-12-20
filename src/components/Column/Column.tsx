@@ -12,6 +12,10 @@ import { useDrop } from 'react-dnd';
 
 const ks = KSS.default._();
 
+/**
+ * Adding and displaying cards
+ * Editing and removing the column
+ */
 const Column: React.FC<{ column: KSS.Column }> = ({column}) => {
   const [menu, setMenu] = React.useState(false);
   const [menuAnchorEl, setMenuAnchorEl] = React.useState();
@@ -53,7 +57,7 @@ const Column: React.FC<{ column: KSS.Column }> = ({column}) => {
     onClose={() => setMenu(false)}
     anchorEl={menuAnchorEl}
   >
-    <MenuItem onClick={() => {setMenu(false); ks.setColumnStateByColumn(column, KSS.ColumnStates.edit)}}>Edit Column</MenuItem>
+    <MenuItem onClick={() => {setMenu(false); ks.setColumnStateByColumn(column, KSS.ColumnStates.edit)}}>Edit column</MenuItem>
     <MenuItem onClick={() => {
       setMenu(false);
       if (ks.getCardsByColumn(column).length >  0) {
@@ -61,8 +65,8 @@ const Column: React.FC<{ column: KSS.Column }> = ({column}) => {
       } else {
         ks.removeColumn(column);
       }
-    }}>Remove Column</MenuItem>
-    <MenuItem onClick={() => {setMenu(false); ks.createNewCard(column)}}>Add Card</MenuItem>
+    }}>Remove column</MenuItem>
+    <MenuItem onClick={() => {setMenu(false); ks.createNewCard(column)}}>Add card</MenuItem>
   </Menu>
   <div className={styles.Column} ref={drop}>
     <IconButton

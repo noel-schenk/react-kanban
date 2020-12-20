@@ -9,6 +9,9 @@ import * as KSS from '../../services/KanbanState.service';
 
 const ks = KSS.default._();
 
+/**
+ * Adding Columns
+ */
 const Header: React.FC = () => {
   const [menu, setMenu] = React.useState(false);
   const [menuAnchorEl, setMenuAnchorEl] = React.useState();
@@ -19,7 +22,7 @@ const Header: React.FC = () => {
       onClose={() => setMenu(false)}
       anchorEl={menuAnchorEl}
     >
-      <MenuItem onClick={() => {setMenu(false); ks.createNewColumn()}}>Add</MenuItem>
+      <MenuItem onClick={() => {setMenu(false); ks.createNewColumn()}}>Add column</MenuItem>
     </Menu>
     <AppBar position='static'>
       <Toolbar>

@@ -1,6 +1,10 @@
 /* eslint-disable */
 import React from 'react';
-import { storiesOf } from '@storybook/react';
 import Header from './Header';
 
-storiesOf('Header', module).add('default', () => <Header />);
+export default {
+    title: 'Header',
+    component: Header,
+};
+
+export const Basic = () => <Header />;
