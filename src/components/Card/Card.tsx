@@ -50,9 +50,9 @@ const Card: React.FC<{ card: KSS.Card }> = ({card}) => {
         />
         <CardContent>
           {fields.map(field => {
-            return <><FormControlLabel
+            return <div key={field.field.key}><FormControlLabel
               control={<Checkbox checked={field.field.state === KSS.FieldStates.hidden}
-              onChange={() => {ks.setFieldStateByField(field.field, field.field.state === KSS.FieldStates.hidden ? KSS.FieldStates.visible : KSS.FieldStates.hidden)}} />} label={field.field.name} /><br/></>;
+              onChange={() => {ks.setFieldStateByField(field.field, field.field.state === KSS.FieldStates.hidden ? KSS.FieldStates.visible : KSS.FieldStates.hidden)}} />} label={field.field.name} /></div>;
           })}
           <Button onClick={() => {ks.setCardDisplayStateByCard(card, KSS.CardStates.data)}} variant='contained' color='primary' fullWidth={true}>Save</Button>
         </CardContent>
